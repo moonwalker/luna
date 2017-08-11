@@ -1,0 +1,17 @@
+# ignore all
+*
+
+# unignore all with extensions
+!*.*
+!Makefile
+
+# unignore all dirs
+!*/
+
+## above combination will ignore all files without extension (go binaries for example)
+## below are the usual ignores
+
+.DS_Store
+*.log
+vendor
+tmp
