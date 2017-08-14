@@ -1,0 +1,7 @@
+services:
+  test:
+    chdir: test
+    build: go build -o svc
+    start: ./svc
+    clean: rm -rf svc
+    watch: true

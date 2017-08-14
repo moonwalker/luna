@@ -1,4 +1,4 @@
-package cmd
+package commands
 
 import (
 	"fmt"
@@ -10,6 +10,7 @@ import (
 
 const (
 	cfgName = "luna"
+	cfgExt  = "yml"
 )
 
 var (
@@ -19,7 +20,7 @@ var (
 // RootCmd represents the base command when called without any subcommands
 var RootCmd = &cobra.Command{
 	Use:   "luna",
-	Short: "luna cli",
+	Short: "Command line tool for microservices in monorepos",
 }
 
 // Execute adds all child commands to the root command sets flags appropriately.
@@ -33,7 +34,7 @@ func Execute() {
 
 func init() {
 	cobra.OnInitialize(initConfig)
-	RootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", fmt.Sprintf("config file (default: %s.yaml)", cfgName))
+	RootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", fmt.Sprintf("config file (default: %s.%s)", cfgName, cfgExt))
 }
 
 // initConfig reads in config file and ENV variables if set
