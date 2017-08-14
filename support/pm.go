@@ -11,7 +11,6 @@ import (
 	"time"
 
 	"github.com/fsnotify/fsnotify"
-	"github.com/spf13/viper"
 )
 
 type service struct {
@@ -25,36 +24,24 @@ type service struct {
 	cmd  *exec.Cmd
 }
 
-type PM struct {
+type Config struct {
 	Services map[string]*service
 }
 
-func NewPM() *PM {
-	pm := &PM{}
+type PM struct {
+	config Config
+}
 
-	err := viper.Unmarshal(&pm)
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(-1)
+func NewPM(cfg Config) *PM {
+	return &PM{
+		config: cfg,
 	}
-
-	return pm
 }
 
 func (pm *PM) Run() {
-	for name, svc := range pm.Services {
-		svc.name = name
-		if svc.Build != "" {
-			pm.build(svc)
-		}
-		if svc.Start != "" {
-			pm.spawn(svc)
-		}
-		if svc.Watch {
-			pm.watch(svc)
-		}
-	}
+	pm.start()
 
+	// wait signal
 	sigs := make(chan os.Signal, 1)
 	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM, syscall.SIGKILL)
 	<-sigs
@@ -62,8 +49,27 @@ func (pm *PM) Run() {
 	pm.stop()
 }
 
+func (pm *PM) start() {
+	for name, svc := range pm.config.Services {
+		svc.name = name
+
+		if svc.Build != "" {
+			pm.build(svc)
+		}
+
+		if svc.Start != "" {
+			pm.spawn(svc)
+		}
+
+		if svc.Watch {
+			w := pm.watch(svc)
+			defer w.Close()
+		}
+	}
+}
+
 func (pm *PM) stop() {
-	for _, svc := range pm.Services {
+	for _, svc := range pm.config.Services {
 		pm.kill(svc, true)
 	}
 }
@@ -131,7 +137,7 @@ func (pm *PM) kill(svc *service, del bool) {
 	}
 }
 
-func (pm *PM) watch(svc *service) {
+func (pm *PM) watch(svc *service) *Batcher {
 	watcher, err := NewWatcher(1 * time.Second)
 	if err != nil {
 		fmt.Println(err)
@@ -143,9 +149,9 @@ func (pm *PM) watch(svc *service) {
 		for {
 			select {
 			case evs := <-watcher.Events:
-				//fmt.Println("Received System Events:", evs)
+				// fmt.Println("Received System Events:", evs)
 				for _, ev := range evs {
-					// Sometimes during rm -rf operations a '"": REMOVE' is triggered. Just ignore these
+					// sometimes during rm -rf operations a '"": REMOVE' is triggered, just ignore these
 					if ev.Name == "" {
 						continue
 					}
@@ -153,7 +159,7 @@ func (pm *PM) watch(svc *service) {
 					if strings.HasSuffix(ev.Name, filepath.Base(svc.Start)) {
 						continue
 					}
-					//
+					// events to watch
 					importantEvent := (ev.Op == fsnotify.Create || ev.Op == fsnotify.Write || ev.Op == fsnotify.Rename || ev.Op == fsnotify.Remove)
 					if importantEvent {
 						fmt.Println("[CHANGE]", svc.name)
@@ -166,4 +172,6 @@ func (pm *PM) watch(svc *service) {
 			}
 		}
 	}()
+
+	return watcher
 }

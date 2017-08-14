@@ -9,10 +9,10 @@ Command line tool for microservices in monorepos.
 - watch
 - clean
 
-## Install
+## Install or update
 
 ```shell
-$ go get github.com/moonwalker/luna
+$ go get -u github.com/moonwalker/luna
 ```
 
 ## Development
