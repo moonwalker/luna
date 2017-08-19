@@ -4,10 +4,8 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
-	"os/signal"
 	"path/filepath"
 	"strings"
-	"syscall"
 	"time"
 
 	"github.com/fsnotify/fsnotify"
@@ -40,12 +38,7 @@ func NewPM(cfg Config) *PM {
 
 func (pm *PM) Run() {
 	pm.start()
-
-	// wait signal
-	sigs := make(chan os.Signal, 1)
-	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM, syscall.SIGKILL)
-	<-sigs
-
+	waitSig()
 	pm.stop()
 }
 
@@ -75,14 +68,9 @@ func (pm *PM) stop() {
 }
 
 func (pm *PM) build(svc *service) {
-	parts := strings.Fields(svc.Build)
-	name := parts[0]
-	arg := parts[1:len(parts)]
-
-	cmd := exec.Command(name, arg...)
-	cmd.Dir = svc.Chdir
-
 	fmt.Println("[BUILD]", svc.name)
+
+	cmd := makeCmd(svc.Build, svc.Chdir)
 	out, err := cmd.CombinedOutput()
 	res := strings.TrimSpace(string(out))
 	if err != nil {
@@ -91,17 +79,13 @@ func (pm *PM) build(svc *service) {
 }
 
 func (pm *PM) spawn(svc *service) {
-	parts := strings.Fields(svc.Start)
-	name := parts[0]
-	arg := parts[1:len(parts)]
+	fmt.Println("[START]", svc.name)
 
-	svc.cmd = exec.Command(name, arg...)
-	svc.cmd.Dir = svc.Chdir
-	svc.cmd.Stdout = os.Stdout
+	svc.cmd = makeCmd(svc.Start, svc.Chdir)
 	svc.cmd.Stdin = os.Stdin
+	svc.cmd.Stdout = os.Stdout
 	svc.cmd.Stderr = os.Stderr
 
-	fmt.Println("[START]", svc.name)
 	err := svc.cmd.Start()
 	if err != nil {
 		fmt.Println(err)

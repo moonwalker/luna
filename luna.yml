@@ -1,7 +1,13 @@
 services:
-  test:
-    chdir: test
-    build: go build -o svc
-    start: ./svc
-    clean: rm -rf svc
+  svc_a:
+    chdir: examples/service_a
+    build: go build -o svc1
+    start: ./svc1
+    clean: rm -rf svc1
+    watch: true
+  svc_b:
+    chdir: examples/service_b
+    build: go build -o svc2
+    start: ./svc2
+    clean: rm -rf svc2
     watch: true

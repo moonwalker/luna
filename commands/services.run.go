@@ -10,7 +10,7 @@ import (
 	"github.com/moonwalker/luna/support"
 )
 
-var runCmd = &cobra.Command{
+var svcRunCmd = &cobra.Command{
 	Use:   "run",
 	Short: "Run services specified in config",
 
@@ -20,7 +20,7 @@ var runCmd = &cobra.Command{
 		err := viper.Unmarshal(&cfg)
 		if err != nil {
 			fmt.Println(err)
-			os.Exit(-1)
+			os.Exit(1)
 		}
 
 		pm := support.NewPM(cfg)
@@ -29,5 +29,5 @@ var runCmd = &cobra.Command{
 }
 
 func init() {
-	servicesCmd.AddCommand(runCmd)
+	servicesCmd.AddCommand(svcRunCmd)
 }

@@ -6,8 +6,8 @@ Command line tool for microservices in monorepos.
 
 - build
 - start
-- watch
 - clean
+- watch
 
 ## Install or update
 
@@ -18,7 +18,7 @@ $ go get -u github.com/moonwalker/luna
 ## Development
 
 ```shell
-$ go run *.go services run
+$ go run *.go
 ```
 
 ## License
