@@ -6,7 +6,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var svcListCmd = &cobra.Command{
+var versionCmd = &cobra.Command{
 	Use:   "version",
 	Short: "Print the version number of Luna",
 
@@ -17,5 +17,5 @@ var svcListCmd = &cobra.Command{
 }
 
 func init() {
-	RootCmd.AddCommand(svcListCmd)
+	RootCmd.AddCommand(versionCmd)
 }

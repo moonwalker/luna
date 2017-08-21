@@ -18,7 +18,7 @@ $ go get -u github.com/moonwalker/luna
 ## Development
 
 ```shell
-$ go run *.go
+$ go run luna.go
 ```
 
 ## License

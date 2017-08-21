@@ -6,6 +6,8 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+
+	"github.com/moonwalker/luna/support"
 )
 
 const (
@@ -15,6 +17,7 @@ const (
 
 var (
 	cfgFile string
+	cfg     support.Config
 )
 
 // RootCmd represents the base command when called without any subcommands
@@ -54,6 +57,12 @@ func initConfig() {
 	err := viper.ReadInConfig()
 	if err != nil {
 		fmt.Println("Config file not found.")
+		os.Exit(1)
+	}
+
+	err = viper.Unmarshal(&cfg)
+	if err != nil {
+		fmt.Println("Config file not valid.")
 		os.Exit(1)
 	}
 }
