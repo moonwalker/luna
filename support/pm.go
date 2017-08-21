@@ -55,7 +55,7 @@ func (pm *PM) stop() {
 func (pm *PM) build(svc *service) {
 	fmt.Println("[BUILD]", svc.name)
 
-	cmd := makeCmd(svc.Build, svc.Chdir)
+	cmd := MakeCmd(svc.Build, svc.Chdir)
 	out, err := cmd.CombinedOutput()
 	res := strings.TrimSpace(string(out))
 	if err != nil {
@@ -66,7 +66,7 @@ func (pm *PM) build(svc *service) {
 func (pm *PM) spawn(svc *service) {
 	fmt.Println("[START]", svc.name)
 
-	svc.cmd = makeCmd(svc.Start, svc.Chdir)
+	svc.cmd = MakeCmd(svc.Start, svc.Chdir)
 	svc.cmd.Stdin = os.Stdin
 	svc.cmd.Stdout = os.Stdout
 	svc.cmd.Stderr = os.Stderr

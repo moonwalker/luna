@@ -6,7 +6,7 @@ import (
 
 var servicesCmd = &cobra.Command{
 	Use:   "services",
-	Short: "Build and run services",
+	Short: "Work with services",
 }
 
 func init() {

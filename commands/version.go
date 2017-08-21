@@ -6,13 +6,19 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var (
+	// version should be updated manually on release
+	Version = "0.1.0"
+	// git commit will be overwritten during build
+	GitCommit = "HEAD"
+)
+
 var versionCmd = &cobra.Command{
 	Use:   "version",
-	Short: "Print the version number of Luna",
+	Short: "Show version info",
 
 	Run: func(cmd *cobra.Command, args []string) {
-		// TODO
-		fmt.Println("v0.1.0")
+		fmt.Printf("%s version %s, build %s", cliName, Version, GitCommit)
 	},
 }
 

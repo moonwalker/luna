@@ -14,23 +14,24 @@ const (
 	gitDiffCmd = "git diff %s --name-only"
 )
 
-func GetGitDiff(compareURL string) string {
-	commitRange := getCommitRange(compareURL)
-	return run(fmt.Sprintf(gitDiffCmd, commitRange))
+func getGitDiff(compareRange string) []string {
+	commitRange := getCommitRange(compareRange)
+	diff := run(fmt.Sprintf(gitDiffCmd, commitRange))
+	return strings.Split(diff, "\n")
 }
 
-func getCommitRange(compareURL string) string {
-	if compareURL == "" {
+func getCommitRange(compareRange string) string {
+	if compareRange == "" {
 		baseCommit := run(gitBaseCmd)
 		lastCommit := run(gitLastCmd)
-		compareURL = fmt.Sprintf("%s...%s", baseCommit, lastCommit)
+		compareRange = fmt.Sprintf("%s...%s", baseCommit, lastCommit)
 	}
 	re := regexp.MustCompile(gitRangeRx)
-	return re.FindString(compareURL)
+	return re.FindString(compareRange)
 }
 
 func run(command string) string {
-	cmd := makeCmd(command, "")
+	cmd := MakeCmd(command, "")
 	out, err := cmd.CombinedOutput()
 	res := strings.TrimSpace(string(out))
 

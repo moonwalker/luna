@@ -8,7 +8,7 @@ import (
 
 var svcRunCmd = &cobra.Command{
 	Use:   "run",
-	Short: "Run services specified in config",
+	Short: "Run services",
 
 	Run: func(cmd *cobra.Command, args []string) {
 		pm := support.NewPM(cfg)

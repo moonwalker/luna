@@ -11,6 +11,7 @@ import (
 )
 
 const (
+	cliName = "luna"
 	cfgName = "luna"
 	cfgExt  = "yml"
 )
@@ -22,7 +23,7 @@ var (
 
 // RootCmd represents the base command when called without any subcommands
 var RootCmd = &cobra.Command{
-	Use:   "luna",
+	Use:   cliName,
 	Short: "Command line tool for microservices in monorepos",
 }
 

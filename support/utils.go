@@ -8,11 +8,11 @@ import (
 	"syscall"
 )
 
-func BoolTostring(b bool, s string) string {
+func BoolTostring(b bool, y string, n string) string {
 	if b {
-		return s
+		return y
 	}
-	return ""
+	return n
 }
 
 func AppendUnique(slice []string, s string) []string {
@@ -36,13 +36,7 @@ func StringInSlice(a string, list []string) bool {
 	return false
 }
 
-func waitSig() {
-	sigs := make(chan os.Signal, 1)
-	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM, syscall.SIGKILL)
-	<-sigs
-}
-
-func makeCmd(command string, chdir string) *exec.Cmd {
+func MakeCmd(command string, chdir string) *exec.Cmd {
 	parts := strings.Fields(command)
 	name := parts[0]
 	arg := parts[1:len(parts)]
@@ -53,4 +47,10 @@ func makeCmd(command string, chdir string) *exec.Cmd {
 	}
 
 	return cmd
+}
+
+func waitSig() {
+	sigs := make(chan os.Signal, 1)
+	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM, syscall.SIGKILL)
+	<-sigs
 }
