@@ -13,7 +13,6 @@ func PackageServices(cfg Config) {
 
 		fmt.Println("[PACK]", name)
 		cmd := MakeCmd(svc.Pack, svc.Chdir)
-		cmd.Stdin = os.Stdin
 		cmd.Stdout = os.Stdout
 		cmd.Stderr = os.Stderr
 

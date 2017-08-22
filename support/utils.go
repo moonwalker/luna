@@ -39,9 +39,10 @@ func StringInSlice(a string, list []string) bool {
 func MakeCmd(command string, chdir string) *exec.Cmd {
 	parts := strings.Fields(command)
 	name := parts[0]
-	arg := parts[1:len(parts)]
+	args := parts[1:]
 
-	cmd := exec.Command(name, arg...)
+	cmd := exec.Command(name, args...)
+	cmd.Env = os.Environ()
 	if chdir != "" {
 		cmd.Dir = chdir
 	}

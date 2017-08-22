@@ -40,8 +40,7 @@ func (pm *PM) start() {
 		}
 
 		if svc.Watch {
-			w := pm.watch(svc)
-			defer w.Close()
+			pm.watch(svc)
 		}
 	}
 }
@@ -67,7 +66,6 @@ func (pm *PM) spawn(svc *service) {
 	fmt.Println("[START]", svc.name)
 
 	svc.cmd = MakeCmd(svc.Start, svc.Chdir)
-	svc.cmd.Stdin = os.Stdin
 	svc.cmd.Stdout = os.Stdout
 	svc.cmd.Stderr = os.Stderr
 
