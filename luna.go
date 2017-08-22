@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/moonwalker/luna/commands"
+	"github.com/moonwalker/luna/cmd"
 )
 
 var (
@@ -11,5 +11,5 @@ var (
 )
 
 func main() {
-	commands.Execute(version, commit)
+	cmd.Execute(version, commit, date)
 }

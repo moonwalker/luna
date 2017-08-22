@@ -1,4 +1,4 @@
-package commands
+package cmd
 
 import (
 	"fmt"
@@ -17,24 +17,21 @@ const (
 )
 
 var (
-	version string
-	commit  string
 	cfgFile string
 	cfg     support.Config
 )
 
 // RootCmd represents the base command when called without any subcommands
-var RootCmd = &cobra.Command{
+var rootCmd = &cobra.Command{
 	Use:   cliName,
 	Short: "Command line tool for microservices in monorepos",
 }
 
 // Execute adds all child commands to the root command sets flags appropriately.
 // This is called by main.main(). It only needs to happen once to the rootCmd.
-func Execute(v, c string) {
-	version = v
-	commit = c
-	if err := RootCmd.Execute(); err != nil {
+func Execute(version, commit, date string) {
+	verInfo = &versionInfo{version, commit, date}
+	if err := rootCmd.Execute(); err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
@@ -42,7 +39,7 @@ func Execute(v, c string) {
 
 func init() {
 	cobra.OnInitialize(initConfig)
-	RootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", fmt.Sprintf("config file (default: %s.%s)", cfgName, cfgExt))
+	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", fmt.Sprintf("config file (default: %s.%s)", cfgName, cfgExt))
 }
 
 // initConfig reads in config file and ENV variables if set

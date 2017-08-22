@@ -1,4 +1,4 @@
-package commands
+package cmd
 
 import (
 	"github.com/spf13/cobra"
@@ -10,5 +10,5 @@ var servicesCmd = &cobra.Command{
 }
 
 func init() {
-	RootCmd.AddCommand(servicesCmd)
+	rootCmd.AddCommand(servicesCmd)
 }
