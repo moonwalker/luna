@@ -1,0 +1,7 @@
+build:
+  binary: luna
+  goos:
+    - darwin
+    - linux
+  goarch:
+    - amd64

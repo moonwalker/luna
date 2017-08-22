@@ -11,13 +11,13 @@ import (
 )
 
 const (
-	version = "0.1.1"
 	cliName = "luna"
 	cfgName = "luna"
 	cfgExt  = "yml"
 )
 
 var (
+	version string
 	commit  string
 	cfgFile string
 	cfg     support.Config
@@ -31,8 +31,9 @@ var RootCmd = &cobra.Command{
 
 // Execute adds all child commands to the root command sets flags appropriately.
 // This is called by main.main(). It only needs to happen once to the rootCmd.
-func Execute(gitCommit string) {
-	commit = gitCommit
+func Execute(v, c string) {
+	version = v
+	commit = c
 	if err := RootCmd.Execute(); err != nil {
 		fmt.Println(err)
 		os.Exit(1)

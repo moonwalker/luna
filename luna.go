@@ -5,9 +5,11 @@ import (
 )
 
 var (
-	GitCommit = "HEAD"
+	version = "dev"
+	commit  = "HEAD"
+	date    = "n/a"
 )
 
 func main() {
-	commands.Execute(GitCommit)
+	commands.Execute(version, commit)
 }

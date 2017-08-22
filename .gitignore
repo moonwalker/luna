@@ -13,5 +13,6 @@
 
 .DS_Store
 *.log
+dist
 tmp
 vendor
