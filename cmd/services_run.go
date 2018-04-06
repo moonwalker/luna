@@ -12,7 +12,7 @@ var svcRunCmd = &cobra.Command{
 
 	Run: func(cmd *cobra.Command, args []string) {
 		pm := support.NewPM(cfg)
-		pm.Run()
+		pm.Run(args)
 	},
 }
 
