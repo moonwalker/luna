@@ -6,16 +6,21 @@ import (
 	"github.com/moonwalker/luna/support"
 )
 
-var svcRunCmd = &cobra.Command{
-	Use:   "run",
-	Short: "Run services",
+var (
+	detach bool
 
-	Run: func(cmd *cobra.Command, args []string) {
-		pm := support.NewPM(cfg)
-		pm.Run(args)
-	},
-}
+	svcRunCmd = &cobra.Command{
+		Use:   "run",
+		Short: "Run services",
+
+		Run: func(cmd *cobra.Command, args []string) {
+			pm := support.NewPM(cfg)
+			pm.Run(args, detach)
+		},
+	}
+)
 
 func init() {
+	svcRunCmd.Flags().BoolVarP(&detach, "detach", "d", false, "run services in the background")
 	servicesCmd.AddCommand(svcRunCmd)
 }

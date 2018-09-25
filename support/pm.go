@@ -12,7 +12,7 @@ import (
 )
 
 type PM struct {
-	config Config
+	config   Config
 	services []string // Specific services to run, if empty, run all from config
 }
 
@@ -22,10 +22,10 @@ func NewPM(cfg Config) *PM {
 	}
 }
 
-func (pm *PM) Run(services []string) {
+func (pm *PM) Run(services []string, detach bool) {
 	for _, s := range services {
 		hasService := false
-		for name, _ := range pm.config.Services {
+		for name := range pm.config.Services {
 			if name == s {
 				hasService = true
 			}
@@ -37,7 +37,26 @@ func (pm *PM) Run(services []string) {
 	}
 	pm.services = services
 	pm.start()
-	waitSig()
+	if !detach {
+		waitSig()
+		pm.stop()
+	}
+}
+
+func (pm *PM) Stop(services []string) {
+	for _, s := range services {
+		hasService := false
+		for name := range pm.config.Services {
+			if name == s {
+				hasService = true
+			}
+		}
+		if !hasService {
+			fmt.Println("Could not find service " + s)
+			os.Exit(1)
+		}
+	}
+	pm.services = services
 	pm.stop()
 }
 
