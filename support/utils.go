@@ -8,7 +8,7 @@ import (
 	"syscall"
 )
 
-func BoolTostring(b bool, y string, n string) string {
+func BoolToString(b bool, y string, n string) string {
 	if b {
 		return y
 	}

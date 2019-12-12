@@ -23,7 +23,7 @@ var svcListCmd = &cobra.Command{
 		table := tablewriter.NewWriter(os.Stdout)
 		table.SetHeader([]string{"Name", "Directory", "Changed"})
 		for name, svc := range cfg.Services {
-			table.Append([]string{name, svc.Chdir, support.BoolTostring(svc.Changed, "✔", "")})
+			table.Append([]string{name, svc.Chdir, support.BoolToString(svc.Changed, "✔", "")})
 		}
 		table.Render()
 	},

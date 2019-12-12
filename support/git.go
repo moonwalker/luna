@@ -9,9 +9,9 @@ import (
 
 const (
 	gitRangeRx = "[0-9a-f]{7,40}...[0-9a-f]{7,40}"
-	gitLastCmd = "git rev-parse --short HEAD"
-	gitBaseCmd = "git rev-parse --short HEAD~2"
-	gitDiffCmd = "git diff %s --name-only"
+	gitPrevCmd = "git rev-parse HEAD~1"
+	gitCurrCmd = "git rev-parse HEAD"
+	gitDiffCmd = "git diff --name-only %s"
 )
 
 func getGitDiff(compareRange string) []string {
@@ -22,10 +22,11 @@ func getGitDiff(compareRange string) []string {
 
 func getCommitRange(compareRange string) string {
 	if compareRange == "" {
-		baseCommit := run(gitBaseCmd)
-		lastCommit := run(gitLastCmd)
-		compareRange = fmt.Sprintf("%s...%s", baseCommit, lastCommit)
+		prevCommit := run(gitPrevCmd)
+		currCommit := run(gitCurrCmd)
+		compareRange = fmt.Sprintf("%s...%s", prevCommit, currCommit)
 	}
+	fmt.Println(compareRange)
 	re := regexp.MustCompile(gitRangeRx)
 	return re.FindString(compareRange)
 }
