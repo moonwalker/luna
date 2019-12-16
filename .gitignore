@@ -4,6 +4,7 @@
 # unignore all with extensions
 !*.*
 !Makefile
+LICENSE
 
 # unignore all dirs
 !*/

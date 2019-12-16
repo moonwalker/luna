@@ -4,29 +4,19 @@ Luna is a command line tool for microservices in monorepos, trying to make devel
 
 In case when you have your services in a monorepo, there are a some obstacles needs to solve.
 
-During development: it would be great to build and run your services concurrently, maybe even restart them when files changed.
+__Dev__: run multiple services concurrently, and restart them when files changed
 
-On CI: detect which services has been changed, and package only those.
+__CI__: build services (bazel, docker) and deploy (k8s)
 
 ## Features
 
 - Build and run multiple services
 - Watch for changes and restart services
-- Clean up on services stopped
-- Detect changes in monorepos
-- Package services for deployment
+- Build and deploy services
 
-## Install or update
+## Install
 
-```shell
-$ go get -u github.com/moonwalker/luna
-```
-
-## Development
-
-```shell
-$ go run luna.go
-```
+Download [latest release](https://github.com/moonwalker/luna/releases/latest)
 
 ## License
 
