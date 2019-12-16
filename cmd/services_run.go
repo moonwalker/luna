@@ -14,13 +14,12 @@ var (
 		Short: "Run services",
 
 		Run: func(cmd *cobra.Command, args []string) {
-			pm := support.NewPM(cfg)
-			pm.Run(args, detach)
+			pm := support.NewPM(cfg, args)
+			pm.Run()
 		},
 	}
 )
 
 func init() {
-	svcRunCmd.Flags().BoolVarP(&detach, "detach", "d", false, "run services in the background")
 	servicesCmd.AddCommand(svcRunCmd)
 }

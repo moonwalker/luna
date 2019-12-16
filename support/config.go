@@ -2,16 +2,17 @@ package support
 
 import (
 	"os/exec"
-	"strings"
 )
 
+type build struct {}
+
 type service struct {
-	Chdir string
-	Build string
-	Start string
-	Clean string
-	Pack  string
+	Dir   string
+	Run   string
+	Dep   []string
 	Watch bool
+
+	Build *build
 
 	name string
 	cmd  *exec.Cmd
@@ -20,16 +21,6 @@ type service struct {
 }
 
 type Config struct {
+	BuildTags []string
 	Services map[string]*service
-}
-
-func (c *Config) PopulateChanges(compareRange string) {
-	gitDiff := getGitDiff(compareRange)
-	for _, diff := range gitDiff {
-		for _, svc := range c.Services {
-			if strings.Contains(diff, svc.Chdir) {
-				svc.Changed = true
-			}
-		}
-	}
 }

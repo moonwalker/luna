@@ -12,8 +12,8 @@ var (
 		Short: "Stop services",
 
 		Run: func(cmd *cobra.Command, args []string) {
-			pm := support.NewPM(cfg)
-			pm.Stop(args)
+			pm := support.NewPM(cfg, args)
+			pm.Stop()
 		},
 	}
 )

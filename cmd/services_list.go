@@ -5,8 +5,6 @@ import (
 
 	"github.com/olekukonko/tablewriter"
 	"github.com/spf13/cobra"
-
-	"github.com/moonwalker/luna/support"
 )
 
 var (
@@ -18,18 +16,15 @@ var svcListCmd = &cobra.Command{
 	Short: "List services",
 
 	Run: func(cmd *cobra.Command, args []string) {
-		cfg.PopulateChanges(listCompareRange)
-
 		table := tablewriter.NewWriter(os.Stdout)
-		table.SetHeader([]string{"Name", "Directory", "Changed"})
+		table.SetHeader([]string{"Name", "Directory"})
 		for name, svc := range cfg.Services {
-			table.Append([]string{name, svc.Chdir, support.BoolToString(svc.Changed, "✔", "")})
+			table.Append([]string{name, svc.Dir})
 		}
 		table.Render()
 	},
 }
 
 func init() {
-	svcListCmd.Flags().StringVarP(&listCompareRange, "compare", "c", "", "Git compare range or URL")
 	servicesCmd.AddCommand(svcListCmd)
 }

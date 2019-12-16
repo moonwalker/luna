@@ -8,13 +8,6 @@ import (
 	"syscall"
 )
 
-func BoolToString(b bool, y string, n string) string {
-	if b {
-		return y
-	}
-	return n
-}
-
 func AppendUnique(slice []string, s string) []string {
 	if s == "" {
 		return slice
@@ -36,15 +29,15 @@ func StringInSlice(a string, list []string) bool {
 	return false
 }
 
-func MakeCmd(command string, chdir string) *exec.Cmd {
+func MakeCmd(command string, dir string) *exec.Cmd {
 	parts := strings.Fields(command)
 	name := parts[0]
 	args := parts[1:]
 
 	cmd := exec.Command(name, args...)
 	cmd.Env = os.Environ()
-	if chdir != "" {
-		cmd.Dir = chdir
+	if dir != "" {
+		cmd.Dir = dir
 	}
 
 	return cmd
