@@ -5,21 +5,9 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
-
-	"github.com/moonwalker/luna/support"
 )
 
-const (
-	cliName = "luna"
-	cfgName = "luna"
-	cfgExt  = "yml"
-)
-
-var (
-	cfgFile string
-	cfg     support.Config
-)
+const cliName = "luna"
 
 // RootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
@@ -33,38 +21,6 @@ func Execute(version, commit, date string) {
 	verInfo = &versionInfo{version, commit, date}
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Println(err)
-		os.Exit(1)
-	}
-}
-
-func init() {
-	cobra.OnInitialize(initConfig)
-	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", fmt.Sprintf("config file (default: %s.%s)", cfgName, cfgExt))
-}
-
-// initConfig reads in config file and ENV variables if set
-func initConfig() {
-	// enable ability to specify config file via flag
-	if cfgFile != "" {
-		viper.SetConfigFile(cfgFile)
-	}
-
-	viper.SetConfigName(cfgName)
-	viper.AddConfigPath(".")
-
-	// read in environment variables that match
-	viper.AutomaticEnv()
-
-	// if a config file is found, read it in
-	err := viper.ReadInConfig()
-	if err != nil {
-		fmt.Println("Config file not found.")
-		os.Exit(1)
-	}
-
-	err = viper.Unmarshal(&cfg)
-	if err != nil {
-		fmt.Println("Config file not valid.")
 		os.Exit(1)
 	}
 }
