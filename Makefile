@@ -2,7 +2,7 @@ VERSION=v0.2.2
 
 release:
 	@git tag -a ${VERSION} -m "Release ${VERSION}" && git push origin ${VERSION}
-	@goreleaser release --rm-dist
+	@goreleaser release --clean
 
 build:
-	@goreleaser build --rm-dist --skip-validate
+	@goreleaser build --skip=validate --clean

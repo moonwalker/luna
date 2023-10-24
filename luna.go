@@ -1,7 +1,10 @@
 package main
 
 import (
-	"github.com/moonwalker/luna/cmd"
+	"fmt"
+	"os"
+
+	"github.com/moonwalker/luna/internal/cli"
 )
 
 var (
@@ -11,5 +14,8 @@ var (
 )
 
 func main() {
-	cmd.Execute(version, commit, date)
+	if err := cli.Run(version, commit, date); err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
 }

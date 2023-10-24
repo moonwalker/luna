@@ -1,0 +1,54 @@
+# common
+
+# define default for an env var, provided env var will override
+env('VERSION', '0.1.0')
+# ldflags('-X github.com/moonwalker/platform/internal/build.version=$VERSION')
+# docker_repo('europe-docker.pkg.dev/mw-lunar/platform')
+# image_tag(git.rev)
+
+# services
+
+go_service('home', 'services/home')
+go_service('accounts', 'services/accounts')
+go_service('payments', 'services/payments')
+go_service('games', 'services/games')
+
+# tasks
+
+task('docs2', cmds=['echo "gello"', 'echo "bboo"'])
+
+def docs():
+    sh('echo $VERSION @ $FOO', env=['FOO=BAR'])
+    sh('go generate -v ./internal/api')
+
+
+# register service
+
+# configure air for watch
+# air(air --build.cmd "go build -o bin/api cmd/run.go" --build.bin "./bin/api" --build.exclude_dir "templates,build")
+
+# stella run [service] [--watch]
+
+# stella build [service]
+
+# #
+
+# def kube(command, stack):
+#     if command == 'config'
+#         kubeconfig_merge('stacks/'+stack)
+
+# stella kube config dev
+# infra/kube.sh config dev
+
+
+# def _fix_target(s):
+#     return s
+
+
+# def tags(fname, bar=1, baz=2):
+#     fname = _fix_target(fname)
+#     # kustomize_setimage(tags)
+#     # shell_exec('echo $fname')
+#     print('>>>', fname, bar, baz)
+#     sh('echo "hello world!"')
+#     return 'xxx1'

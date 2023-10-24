@@ -1,19 +1,2 @@
-# ignore all
-*
-
-# unignore all with extensions
-!*.*
-!Makefile
-!LICENSE
-
-# unignore all dirs
-!*/
-
-## above combination will ignore all files without extension (go binaries for example)
-## below are the usual ignores
-
 .DS_Store
-*.log
 dist
-tmp
-vendor
