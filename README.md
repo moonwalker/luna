@@ -6,13 +6,14 @@ In case when you have your services in a monorepo, there are a some obstacles ne
 
 __Dev__: run multiple services concurrently, and restart them when files changed
 
-__CI__: build services (bazel, docker) and deploy (k8s)
+__CI__: build docker images
 
 ## Features
 
+- Task runner with intergrated Starlark support
 - Build and run multiple services
 - Watch for changes and restart services
-- Build and deploy services
+- Build docker images
 
 ## Install
 
