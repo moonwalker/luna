@@ -1,15 +1,12 @@
 package cli
 
 import (
-	"errors"
 	"fmt"
 	"os"
-	"path"
 
 	"github.com/spf13/cobra"
 
-	"github.com/moonwalker/luna/internal/cli/starlark"
-	"github.com/moonwalker/luna/internal/cli/yamlconfig"
+	"github.com/moonwalker/luna/internal/cli/services"
 	"github.com/moonwalker/luna/internal/support"
 	"github.com/moonwalker/luna/internal/tasks"
 )
@@ -45,39 +42,49 @@ func init() {
 func Run(version, commit, date string) error {
 	rootCmd.Version = fmt.Sprintf("%s, build %s", version, commit)
 
-	// try default files
-	if len(file) == 0 {
-		if fileExists(defaultFile) {
-			file = defaultFile
-		} else if fileExists(defaultYaml) {
-			file = defaultYaml
-		} else {
-			nofile = true
-		}
-	}
+	// no file specified
+	nofile = len(file) == 0
 
+	// no file specified, try defaults
 	if nofile {
-		rootCmd.RunE = func(cmd *cobra.Command, args []string) error {
-			if len(file) == 0 {
-				return nil
+		// lunafile
+		if support.FileExists(defaultFile) {
+			if err := tasks.Load(defaultFile, rootCmd); err != nil {
+				return err
 			}
-			if nofile {
-				return fmt.Errorf("%s not found", file)
-			}
-			return nil
 		}
-	} else {
-		if isYaml(file) {
-			yamlconfig.UseYamlConfig(rootCmd, file)
-		} else {
-			if err := tasks.Load(file, rootCmd); err != nil {
+		// lunayaml
+		if support.FileExists(defaultYaml) {
+			if err := support.LoadYaml(defaultYaml); err != nil {
 				return err
 			}
 		}
 	}
 
-	if len(support.AllServices()) > 0 {
-		starlark.UseStarlark(rootCmd)
+	// file specified
+	if !nofile {
+		// but not exists
+		if !support.FileExists(file) {
+			rootCmd.RunE = func(cmd *cobra.Command, args []string) error {
+				return fmt.Errorf("%s not found", file)
+			}
+		} else {
+			// file exists
+			// check if yaml
+			if support.IsYaml(file) {
+				if err := support.LoadYaml(file); err != nil {
+					return err
+				}
+			} else {
+				if err := tasks.Load(file, rootCmd); err != nil {
+					return err
+				}
+			}
+		}
+	}
+
+	if len(support.Services()) > 0 {
+		services.EnableServicesCmd(rootCmd)
 	}
 
 	if len(rootCmd.Commands()) == 0 {
@@ -85,16 +92,4 @@ func Run(version, commit, date string) error {
 	}
 
 	return rootCmd.Execute()
-}
-
-func fileExists(f string) bool {
-	if _, err := os.Stat(f); errors.Is(err, os.ErrNotExist) {
-		return false
-	}
-	return true
-}
-
-func isYaml(f string) bool {
-	ext := path.Ext(f)
-	return ext == ".yml" || ext == ".yaml" // TODO: check with yaml parser
 }

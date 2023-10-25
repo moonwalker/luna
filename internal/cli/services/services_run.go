@@ -1,8 +1,9 @@
-package yamlconfig
+package services
 
 import (
 	"github.com/spf13/cobra"
 
+	"github.com/moonwalker/luna/internal/pm"
 	"github.com/moonwalker/luna/internal/support"
 )
 
@@ -12,7 +13,7 @@ var (
 		Short: "Run services",
 
 		Run: func(cmd *cobra.Command, args []string) {
-			pm := support.NewPM(cfg, args)
+			pm := pm.NewPM(support.Services(), args)
 			pm.Run()
 		},
 	}

@@ -1,50 +1,26 @@
 package support
 
 import (
+	"errors"
 	"os"
-	"os/exec"
-	"os/signal"
-	"strings"
-	"syscall"
+
+	"gopkg.in/yaml.v3"
 )
 
-func AppendUnique(slice []string, s string) []string {
-	if s == "" {
-		return slice
+func FileExists(f string) bool {
+	if _, err := os.Stat(f); errors.Is(err, os.ErrNotExist) {
+		return false
 	}
-	for _, e := range slice {
-		if e == s {
-			return slice
-		}
-	}
-	return append(slice, s)
+	return true
 }
 
-func StringInSlice(a string, list []string) bool {
-	for _, b := range list {
-		if b == a {
-			return true
-		}
-	}
-	return false
-}
-
-func MakeCmd(command string, dir string) *exec.Cmd {
-	parts := strings.Fields(command)
-	name := parts[0]
-	args := parts[1:]
-
-	cmd := exec.Command(name, args...)
-	cmd.Env = os.Environ()
-	if dir != "" {
-		cmd.Dir = dir
+func IsYaml(f string) bool {
+	data, err := os.ReadFile(f)
+	if err != nil {
+		return false
 	}
 
-	return cmd
-}
-
-func waitSig() {
-	sigs := make(chan os.Signal, 1)
-	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM, syscall.SIGKILL)
-	<-sigs
+	var out interface{}
+	err = yaml.Unmarshal([]byte(data), &out)
+	return err == nil
 }

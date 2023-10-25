@@ -1,10 +1,12 @@
-package yamlconfig
+package services
 
 import (
 	"os"
 
 	"github.com/olekukonko/tablewriter"
 	"github.com/spf13/cobra"
+
+	"github.com/moonwalker/luna/internal/support"
 )
 
 var svcListCmd = &cobra.Command{
@@ -15,8 +17,8 @@ var svcListCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		table := tablewriter.NewWriter(os.Stdout)
 		table.SetHeader([]string{"Name", "Directory"})
-		for name, svc := range cfg.Services {
-			table.Append([]string{name, svc.Dir})
+		for _, svc := range support.Services() {
+			table.Append([]string{svc.Name, svc.Dir})
 		}
 		table.Render()
 	},

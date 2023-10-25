@@ -1,7 +1,7 @@
 // Copyright (c) The Hugo Authors. All rights reserved.
 // https://github.com/gohugoio/hugo/blob/master/watcher/batcher.go
 
-package support
+package watcher
 
 import (
 	"time"
