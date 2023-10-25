@@ -1,8 +1,8 @@
 package support
 
 import (
+	"errors"
 	"os"
-	"os/exec"
 
 	"gopkg.in/yaml.v3"
 )
@@ -10,22 +10,26 @@ import (
 type ServiceKind int
 
 const (
-	GoService ServiceKind = iota
+	GenericService ServiceKind = iota
+	GoService
 )
 
 type Service struct {
-	Kind    ServiceKind
-	Name    string
-	Dir     string
-	Run     string
-	Dep     []string
-	Watch   bool
-	Changed bool
-	Cmd     *exec.Cmd
+	Kind  ServiceKind
+	Name  string
+	Dir   string
+	Run   string // simple run
+	Cmd   string // build
+	Bin   string // built bin to run
+	Dep   []string
+	Watch bool
 }
 
-// store services internally
-var services = map[string]*Service{}
+var (
+	// store services internally
+	services            = map[string]*Service{}
+	invalidServiceError = errors.New("invalid service definition")
+)
 
 func Services() map[string]*Service {
 	return services
@@ -57,12 +61,12 @@ func LoadYaml(f string) error {
 }
 
 // register a service from lunafile
-func RegisterService(name, dir string, kind ServiceKind) {
-	services[name] = &Service{
-		Name: name,
-		Dir:  dir,
-		Kind: kind,
+func RegisterService(s *Service) error {
+	if s == nil || len(s.Name) == 0 {
+		return invalidServiceError
 	}
+	services[s.Name] = s
+	return nil
 }
 
 func FindServices(names ...string) []*Service {

@@ -17,6 +17,7 @@ var (
 		"env":        starlark.NewBuiltin("env", env),
 		"sh":         starlark.NewBuiltin("sh", sh),
 		"task":       starlark.NewBuiltin("task", task),
+		"service":    starlark.NewBuiltin("service", service),
 		"go_service": starlark.NewBuiltin("go_service", go_service),
 	}
 )

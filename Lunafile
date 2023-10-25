@@ -8,10 +8,10 @@ env('VERSION', '0.1.0')
 
 # services
 
-go_service('home', 'services/home')
-go_service('accounts', 'services/accounts')
-go_service('payments', 'services/payments')
-go_service('games', 'services/games')
+service('svc_a_2', 'examples/service_a', run='go run .')
+service('svc_b_2', 'examples/service_b', run='go run .')
+
+go_service('svc_a_3', 'examples/service_a')
 
 # tasks
 

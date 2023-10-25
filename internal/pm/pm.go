@@ -3,9 +3,7 @@ package pm
 import (
 	"fmt"
 	"os"
-	"os/exec"
 	"os/signal"
-	"strings"
 	"syscall"
 	"time"
 
@@ -15,14 +13,22 @@ import (
 	"github.com/moonwalker/luna/internal/watcher"
 )
 
+type Runner interface {
+	Run()
+	Stop()
+}
+
 type PM struct {
 	// loaded services
 	services map[string]*support.Service
+	// runners
+	runners map[string]Runner
 }
 
 func NewPM(allServices map[string]*support.Service, serviceNames []string) *PM {
 	pm := &PM{
 		services: make(map[string]*support.Service, 0),
+		runners:  make(map[string]Runner, 0),
 	}
 
 	// load services
@@ -42,11 +48,13 @@ func NewPM(allServices map[string]*support.Service, serviceNames []string) *PM {
 
 func (pm *PM) Run() {
 	for _, svc := range pm.services {
-		if len(svc.Run) > 0 {
+		if len(svc.Run) > 0 || (len(svc.Cmd) > 0 && len(svc.Bin) > 0) {
 			pm.spawn(svc)
 			if svc.Watch {
 				pm.watch(svc)
 			}
+		} else {
+			fmt.Printf("no command specified for %s\n", svc.Name)
 		}
 	}
 	waitSig()
@@ -59,35 +67,37 @@ func (pm *PM) Stop() {
 	}
 }
 
+func (pm *PM) runnerFactory(svc *support.Service) (Runner, error) {
+	if svc.Kind == support.GoService {
+		return air(svc.Cmd, svc.Bin, svc.Dir)
+	}
+	return newCmdRunner(svc.Run, svc.Dir)
+}
+
 func (pm *PM) spawn(svc *support.Service) {
 	fmt.Println("[START]", svc.Name)
 
-	svc.Cmd = makeCmd(svc.Run, svc.Dir)
-	svc.Cmd.Stdout = os.Stdout
-	svc.Cmd.Stderr = os.Stderr
-
-	err := svc.Cmd.Start()
+	runner, err := pm.runnerFactory(svc)
 	if err != nil {
-		fmt.Println(err)
-	}
-}
-
-func (pm *PM) kill(svc *support.Service) {
-	if svc.Cmd.Process == nil {
+		fmt.Fprintln(os.Stderr, err)
 		return
 	}
 
-	fmt.Println("[KILL]", svc.Name)
-	err := svc.Cmd.Process.Kill()
-	if err != nil {
-		fmt.Println(err)
+	pm.runners[svc.Name] = runner
+	pm.runners[svc.Name].Run()
+}
+
+func (pm *PM) kill(svc *support.Service) {
+	if pm.runners[svc.Name] != nil {
+		fmt.Println("[KILL]", svc.Name)
+		pm.runners[svc.Name].Stop()
 	}
 }
 
 func (pm *PM) watch(svc *support.Service) *watcher.Batcher {
 	watcher, err := watcher.NewWatcher(1 * time.Second)
 	if err != nil {
-		fmt.Println(err)
+		fmt.Fprintln(os.Stderr, err)
 	}
 
 	watcher.Add(svc.Dir)
@@ -127,22 +137,8 @@ func stringInSlice(a string, list []string) bool {
 	return false
 }
 
-func makeCmd(command string, dir string) *exec.Cmd {
-	parts := strings.Fields(command)
-	name := parts[0]
-	args := parts[1:]
-
-	cmd := exec.Command(name, args...)
-	cmd.Env = os.Environ()
-	if dir != "" {
-		cmd.Dir = dir
-	}
-
-	return cmd
-}
-
 func waitSig() {
 	sigs := make(chan os.Signal, 1)
-	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM, syscall.SIGKILL)
+	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM, syscall.SIGHUP)
 	<-sigs
 }
