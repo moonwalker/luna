@@ -14,11 +14,13 @@ type BuiltinsConfig struct {
 var (
 	Config      = &BuiltinsConfig{}
 	Predeclared = starlark.StringDict{
-		"env":        starlark.NewBuiltin("env", env),
-		"sh":         starlark.NewBuiltin("sh", sh),
-		"task":       starlark.NewBuiltin("task", task),
-		"service":    starlark.NewBuiltin("service", service),
-		"go_service": starlark.NewBuiltin("go_service", go_service),
+		"env":         starlark.NewBuiltin("env", env),
+		"sh":          starlark.NewBuiltin("sh", sh),
+		"task":        starlark.NewBuiltin("task", task),
+		"service":     starlark.NewBuiltin("service", service),
+		"go_service":  starlark.NewBuiltin("go_service", go_service),
+		"docker_repo": starlark.NewBuiltin("docker_repo", docker_repo),
+		"build_flags": starlark.NewBuiltin("build_flags", build_flags),
 	}
 )
 

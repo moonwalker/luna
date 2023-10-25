@@ -58,6 +58,7 @@ func go_service(thread *starlark.Thread, b *starlark.Builtin, args starlark.Tupl
 		return nil, err
 	}
 
+	run := "go run ."
 	cmd := fmt.Sprintf("go build -o ./tmp/%s ./%s", name, dir)
 	bin := fmt.Sprintf("./tmp/%s", name)
 
@@ -65,6 +66,7 @@ func go_service(thread *starlark.Thread, b *starlark.Builtin, args starlark.Tupl
 		Kind:  support.GoService,
 		Name:  name,
 		Dir:   dir,
+		Run:   run,
 		Cmd:   cmd,
 		Bin:   bin,
 		Dep:   dep,

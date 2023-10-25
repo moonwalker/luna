@@ -68,9 +68,9 @@ func (pm *PM) Stop() {
 }
 
 func (pm *PM) runnerFactory(svc *support.Service) (Runner, error) {
-	if svc.Kind == support.GoService {
-		return air(svc.Cmd, svc.Bin, svc.Dir)
-	}
+	// if svc.Kind == support.GoService {
+	// 	return air(svc.Cmd, svc.Bin, svc.Dir)
+	// }
 	return newCmdRunner(svc.Run, svc.Dir)
 }
 
