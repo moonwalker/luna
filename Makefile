@@ -1,4 +1,4 @@
-VERSION=v0.3.0-beta
+VERSION=v0.3.1-beta
 
 release:
 	@git tag -a ${VERSION} -m "Release ${VERSION}" && git push origin ${VERSION}
