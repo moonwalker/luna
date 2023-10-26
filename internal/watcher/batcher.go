@@ -19,7 +19,7 @@ type Batcher struct {
 }
 
 // NewWatcher creates and starts a Batcher with the given time interval.
-func NewWatcher(interval time.Duration) (*Batcher, error) {
+func NewBatchWatcher(interval time.Duration) (*Batcher, error) {
 	watcher, err := fsnotify.NewWatcher()
 
 	batcher := &Batcher{}

@@ -7,13 +7,6 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-type ServiceKind int
-
-const (
-	GenericService ServiceKind = iota
-	GoService
-)
-
 type Service struct {
 	Kind  ServiceKind
 	Name  string
@@ -30,6 +23,10 @@ var (
 	services            = map[string]*Service{}
 	invalidServiceError = errors.New("invalid service definition")
 )
+
+func (s *Service) Runnable() bool {
+	return len(s.Run) > 0 || (len(s.Cmd) > 0 && len(s.Bin) > 0)
+}
 
 func Services() map[string]*Service {
 	return services

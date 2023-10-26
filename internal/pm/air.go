@@ -1,16 +1,15 @@
 package pm
 
 import (
-	"os"
 	"path/filepath"
-	"strings"
 
 	"github.com/cosmtrek/air/runner"
+	"github.com/moonwalker/luna/internal/support"
 )
 
 // air --build.cmd "go build -o ./tmp/service_a ./examples/service_a" --build.bin "./tmp/service_a" --build.exclude_dir "dist,tmp,vendor"
 func air(cmd, bin, dir string) (*runner.Engine, error) {
-	root, err := expandPath(".")
+	root, err := support.ExpandPath(".")
 	if err != nil {
 		return nil, err
 	}
@@ -35,27 +34,4 @@ func air(cmd, bin, dir string) (*runner.Engine, error) {
 	cfg.Build.IncludeDir = []string{"pkg", "internal", dir}
 
 	return runner.NewEngineWithConfig(cfg, false)
-}
-
-func expandPath(path string) (string, error) {
-	if strings.HasPrefix(path, "~/") {
-		home := os.Getenv("HOME")
-		return home + path[1:], nil
-	}
-
-	var err error
-	wd, err := os.Getwd()
-	if err != nil {
-		return "", err
-	}
-
-	if path == "." {
-		return wd, nil
-	}
-
-	if strings.HasPrefix(path, "./") {
-		return wd + path[1:], nil
-	}
-
-	return path, nil
 }
