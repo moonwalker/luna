@@ -7,6 +7,7 @@ import (
 	"os/signal"
 	"sync"
 
+	"github.com/moonwalker/luna/internal/config"
 	"github.com/moonwalker/luna/internal/support"
 )
 
@@ -17,11 +18,13 @@ type Runner interface {
 
 type PM struct {
 	wg        sync.WaitGroup
+	cfg       *config.Config
 	runnables map[string]*support.Service
 }
 
-func NewPM(allServices map[string]*support.Service, serviceNames []string) *PM {
+func NewPM(cfg *config.Config, allServices map[string]*support.Service, serviceNames []string) *PM {
 	pm := &PM{
+		cfg:       cfg,
 		runnables: make(map[string]*support.Service, 0),
 	}
 
@@ -54,11 +57,11 @@ func NewPM(allServices map[string]*support.Service, serviceNames []string) *PM {
 func (pm *PM) Run() {
 	ctx, cancel := context.WithCancel(context.Background())
 
-	signalChan := make(chan os.Signal, 1)
-	signal.Notify(signalChan, os.Interrupt)
+	sigs := make(chan os.Signal, 1)
+	signal.Notify(sigs, os.Interrupt)
 
 	defer func() {
-		signal.Stop(signalChan)
+		signal.Stop(sigs)
 		cancel()
 	}()
 
@@ -69,10 +72,10 @@ func (pm *PM) Run() {
 
 	go func() {
 		select {
-		case <-signalChan: // first signal, cancel context
+		case <-sigs: // first signal, cancel context
 			cancel()
 		}
-		<-signalChan // second signal, hard exit
+		<-sigs // second signal, hard exit
 		os.Exit(2)
 	}()
 
@@ -90,8 +93,9 @@ func (pm *PM) runService(ctx context.Context, svc *support.Service) {
 
 	go func() {
 		<-ctx.Done()
-		fmt.Println("[STOP]", svc.Name)
 		runner.Stop()
+		fmt.Print("\r")
+		fmt.Println("[STOP]", svc.Name)
 	}()
 
 	fmt.Println("[START]", svc.Name)
@@ -99,8 +103,10 @@ func (pm *PM) runService(ctx context.Context, svc *support.Service) {
 }
 
 func (pm *PM) runnerFactory(svc *support.Service) (Runner, error) {
-	if svc.Kind == support.GoService {
-		return air(svc.Cmd, svc.Bin, svc.Dir)
+	if pm.cfg.ExperimentalAirSupport {
+		if len(svc.Cmd) > 0 && len(svc.Bin) > 0 {
+			return air(svc.Cmd, svc.Bin, svc.Dir)
+		}
 	}
 	return execRunner(svc)
 }

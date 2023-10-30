@@ -25,6 +25,9 @@ var (
 )
 
 func (s *Service) Runnable() bool {
+	if len(s.Dir) == 0 {
+		return false
+	}
 	return len(s.Run) > 0 || (len(s.Cmd) > 0 && len(s.Bin) > 0)
 }
 

@@ -11,8 +11,8 @@ import (
 )
 
 type cmdExecRunner struct {
-	svc  *support.Service
-	proc *os.Process
+	svc *support.Service
+	cmd *exec.Cmd
 }
 
 func execRunner(svc *support.Service) (*cmdExecRunner, error) {
@@ -29,35 +29,38 @@ func (r *cmdExecRunner) Run() {
 }
 
 func (r *cmdExecRunner) Stop() {
-	if r.proc != nil {
-		r.proc.Kill()
+	if r.cmd.Process != nil {
+		err := r.cmd.Process.Signal(os.Interrupt)
+		if err != nil {
+			err = r.cmd.Process.Kill()
+			if err != nil {
+				fmt.Fprintln(os.Stderr, err)
+			}
+		}
 	}
 }
 
 func (r *cmdExecRunner) start() {
-	cmd := makeCmd(r.svc.Run, r.svc.Dir)
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
+	r.cmd = makeCmd(r.svc.Run, r.svc.Dir)
+	r.cmd.Stdout = os.Stdout
+	r.cmd.Stderr = os.Stderr
 
-	err := cmd.Start()
+	err := r.cmd.Start()
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		return
 	}
 
-	// keep underlying process for later
-	r.proc = cmd.Process
-
-	err = cmd.Wait()
+	err = r.cmd.Wait()
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 	}
 }
 
 func (r *cmdExecRunner) restart() {
-	if r.proc != nil {
+	if r.cmd.Process != nil {
 		fmt.Println("[RESTART]", r.svc.Name)
-		r.proc.Kill()
+		r.Stop()
 		r.start()
 	}
 }

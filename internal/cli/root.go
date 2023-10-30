@@ -52,11 +52,12 @@ func Run(version, commit, date string) error {
 			if err := tasks.Load(defaultFile, rootCmd); err != nil {
 				return err
 			}
-		}
-		// lunayaml
-		if support.FileExists(defaultYaml) {
-			if err := support.LoadYaml(defaultYaml); err != nil {
-				return err
+		} else {
+			// lunayaml
+			if support.FileExists(defaultYaml) {
+				if err := support.LoadYaml(defaultYaml); err != nil {
+					return err
+				}
 			}
 		}
 	}
