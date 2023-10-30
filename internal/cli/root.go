@@ -39,7 +39,7 @@ func init() {
 	rootCmd.ParseFlags(os.Args)
 }
 
-func Run(version, commit, date string) error {
+func Run(version, commit string) error {
 	rootCmd.Version = fmt.Sprintf("%s, build %s", version, commit)
 
 	// no file specified

@@ -10,11 +10,10 @@ import (
 var (
 	version = "dev"
 	commit  = "HEAD"
-	date    = "n/a"
 )
 
 func main() {
-	if err := cli.Run(version, commit, date); err != nil {
+	if err := cli.Run(version, commit); err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
