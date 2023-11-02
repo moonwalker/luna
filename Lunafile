@@ -23,6 +23,8 @@ def docs():
     sh('echo $VERSION @ $FOO', env=['FOO=BAR'])
     sh('go generate -v ./internal/api')
 
+def kube(stack='abc'):
+    sh('echo $stack')
 
 # register service
 

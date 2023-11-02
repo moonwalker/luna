@@ -33,17 +33,15 @@ func Load(fname string, command *cobra.Command) error {
 	}
 
 	if len(globals.Keys()) == 0 {
-		// command.Run = func(cmd *cobra.Command, args []string) {}
 		return nil
 	}
 
 	fns := make([]*starlark.Function, 0)
 	for _, name := range globals.Keys() {
 		v := globals[name]
-		// fmt.Println(name, v.Type())
 		fn, ok := (v).(*starlark.Function)
 		if ok {
-			// convention for private, skip those
+			// convention for private, skip functions prefixed with underscore
 			if !strings.HasPrefix(fn.Name(), "_") {
 				fns = append(fns, fn)
 			}
@@ -89,6 +87,16 @@ func addCommand(command *cobra.Command, fn *starlark.Function) {
 		Args:    cobra.MinimumNArgs(minParams),
 		GroupID: groupID,
 		Run: func(cmd *cobra.Command, args []string) {
+			// set params as env vars for later usage in shell
+			pos := 0
+			for name, val := range params {
+				if len(args) > pos && len(args[pos]) > 0 {
+					val = args[pos]
+				}
+				os.Setenv(name, val)
+				pos++
+			}
+
 			out, err := starlark.Call(thread, fn, starlarkArgs(args), nil)
 			if err != nil {
 				fmt.Fprintln(os.Stderr, err)
