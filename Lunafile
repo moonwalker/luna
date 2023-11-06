@@ -19,9 +19,11 @@ go_service('svc_b_3', 'examples/service_b')
 
 task('docs2', cmds=['echo "gello"', 'echo "bboo"'])
 
+
 def docs():
     sh('echo $VERSION @ $FOO', env=['FOO=BAR'])
     sh('go generate -v ./internal/api')
+
 
 def stacks(stack, command, *args):
     print(stack, command)

@@ -3,6 +3,7 @@ package support
 import (
 	"errors"
 	"os"
+	"sort"
 
 	"gopkg.in/yaml.v3"
 )
@@ -20,7 +21,7 @@ type Service struct {
 
 var (
 	// store services internally
-	services            = map[string]*Service{}
+	services            = []*Service{}
 	invalidServiceError = errors.New("invalid service definition")
 )
 
@@ -31,8 +32,22 @@ func (s *Service) Runnable() bool {
 	return len(s.Run) > 0 || (len(s.Cmd) > 0 && len(s.Bin) > 0)
 }
 
-func Services() map[string]*Service {
+func Services() []*Service {
 	return services
+}
+
+func ServicesSorted() []*Service {
+	res := make([]*Service, 0, len(services))
+
+	for _, svc := range services {
+		res = append(res, svc)
+	}
+
+	sort.SliceStable(res, func(i, j int) bool {
+		return res[i].Name < res[j].Name
+	})
+
+	return res
 }
 
 // load services from yaml
@@ -54,7 +69,7 @@ func LoadYaml(f string) error {
 	// map services
 	for name, s := range out.Services {
 		s.Name = name
-		services[name] = s
+		services = append(services, s)
 	}
 
 	return nil
@@ -65,7 +80,7 @@ func RegisterService(s *Service) error {
 	if s == nil || len(s.Name) == 0 {
 		return invalidServiceError
 	}
-	services[s.Name] = s
+	services = append(services, s)
 	return nil
 }
 

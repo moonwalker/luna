@@ -17,7 +17,7 @@ var svcListCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		table := tablewriter.NewWriter(os.Stdout)
 		table.SetHeader([]string{"Name", "Directory"})
-		for _, svc := range support.Services() {
+		for _, svc := range support.ServicesSorted() {
 			table.Append([]string{svc.Name, svc.Dir})
 		}
 		table.Render()

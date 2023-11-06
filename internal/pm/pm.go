@@ -19,35 +19,36 @@ type Runner interface {
 type PM struct {
 	wg        sync.WaitGroup
 	cfg       *config.Config
-	runnables map[string]*support.Service
+	runnables []*support.Service
 }
 
-func NewPM(cfg *config.Config, allServices map[string]*support.Service, serviceNames []string) *PM {
+func NewPM(cfg *config.Config, allServices []*support.Service, serviceNames []string) *PM {
 	pm := &PM{
 		cfg:       cfg,
-		runnables: make(map[string]*support.Service, 0),
+		runnables: make([]*support.Service, 0),
 	}
 
 	// collect candidates with possible deps
-	candidates := map[string]*support.Service{}
-	for name, svc := range allServices {
+	candidates := []*support.Service{}
+	for _, svc := range allServices {
 		if len(serviceNames) > 0 {
-			if !support.StringListContains(serviceNames, name) {
+			if !support.StringListContains(serviceNames, svc.Name) {
 				continue
 			}
 		}
-		for _, dep := range svc.Dep {
-			candidates[dep] = allServices[dep]
-		}
-		candidates[name] = svc
+		// svc as candidate
+		candidates = append(candidates, svc)
+		// svc's dependencies as candidates
+		depSvcs := support.FindServices(svc.Dep...)
+		candidates = append(candidates, depSvcs...)
 	}
 
 	// load runnable candidates
-	for name, svc := range candidates {
+	for _, svc := range candidates {
 		if svc.Runnable() {
-			pm.runnables[name] = svc
+			pm.runnables = append(pm.runnables, svc)
 		} else {
-			fmt.Printf("no command to execute for %s\n", name)
+			fmt.Printf("no command to execute for %s\n", svc.Name)
 		}
 	}
 
