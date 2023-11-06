@@ -25,6 +25,11 @@ var (
 	}
 )
 
+type fnParam struct {
+	name  string
+	value string
+}
+
 func Load(fname string, command *cobra.Command) error {
 	builtins.ConfigTasks(command, groupID, groupTitle)
 
@@ -89,25 +94,19 @@ func addCommand(command *cobra.Command, fn *starlark.Function) {
 		GroupID:            groupID,
 		DisableFlagParsing: true,
 		Run: func(cmd *cobra.Command, args []string) {
-
-			// set params as env vars for later usage in shell
-			pos := 0
-			for name, val := range params {
-				if len(args) > pos && len(args[pos]) > 0 {
-					val = args[pos]
-				}
-				os.Setenv(name, val)
-				pos++
-			}
-
-			// add to task params for later usage as params in shell
+			// set params as positional params for later usage in shell
 			support.TaskParams = args
 
+			// set params as env vars for later usage in shell
+			paramsWithArgsToEnv(params, args)
+
+			// call the function
 			out, err := starlark.Call(thread, fn, starlarkArgs(args), nil)
 			if err != nil {
 				fmt.Fprintln(os.Stderr, err)
 			}
 
+			// report output
 			_, none := (out).(starlark.NoneType)
 			if out != nil && !none {
 				fmt.Println(strings.Trim(out.String(), `"`))
@@ -116,8 +115,8 @@ func addCommand(command *cobra.Command, fn *starlark.Function) {
 	})
 }
 
-func parseParams(fn *starlark.Function) (int, map[string]string) {
-	params := make(map[string]string)
+func parseParams(fn *starlark.Function) (int, []*fnParam) {
+	var params []*fnParam
 	minParams := fn.NumParams()
 
 	if fn.HasVarargs() {
@@ -129,29 +128,37 @@ func parseParams(fn *starlark.Function) (int, map[string]string) {
 
 	p := minParams
 	for i := 0; i < p; i++ {
-		param, _ := fn.Param(i)
-		defval := fn.ParamDefault(i)
+		name, _ := fn.Param(i)
+		value := fn.ParamDefault(i)
 
-		if defval != nil {
-			params[param] = defval.String()
+		// has default value, less required params
+		if value != nil {
+			params = append(params, &fnParam{name, value.String()})
 			minParams--
 		} else {
-			params[param] = ""
+			params = append(params, &fnParam{name, ""})
 		}
 	}
 
 	return minParams, params
 }
 
-func fmtParams(s string, params map[string]string) string {
-	for name, defval := range params {
-		if defval == "" {
-			s += fmt.Sprintf(" <%s>", name)
+func fmtParams(s string, params []*fnParam) string {
+	for _, p := range params {
+		if p.value == "" {
+			s += fmt.Sprintf(" <%s>", p.name)
 		} else {
-			s += fmt.Sprintf(" [%s=%s]", name, defval)
+			s += fmt.Sprintf(" [%s=%s]", p.name, p.value)
 		}
 	}
 	return s
+}
+
+func paramsWithArgsToEnv(params []*fnParam, args []string) {
+	for i, p := range params {
+		v := args[i]
+		os.Setenv(p.name, v)
+	}
 }
 
 func starlarkArgs(args []string) starlark.Tuple {
