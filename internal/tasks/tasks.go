@@ -10,6 +10,7 @@ import (
 	"go.starlark.net/starlark"
 
 	"github.com/moonwalker/luna/internal/builtins"
+	"github.com/moonwalker/luna/internal/support"
 )
 
 const (
@@ -80,13 +81,15 @@ func execFile(name string) (starlark.StringDict, error) {
 
 func addCommand(command *cobra.Command, fn *starlark.Function) {
 	minParams, params := parseParams(fn)
-	usage := fmtUsage(fn.Name(), params)
+	use := fmtParams(fn.Name(), params)
 
 	command.AddCommand(&cobra.Command{
-		Use:     usage,
-		Args:    cobra.MinimumNArgs(minParams),
-		GroupID: groupID,
+		Use:                use,
+		Args:               cobra.MinimumNArgs(minParams),
+		GroupID:            groupID,
+		DisableFlagParsing: true,
 		Run: func(cmd *cobra.Command, args []string) {
+
 			// set params as env vars for later usage in shell
 			pos := 0
 			for name, val := range params {
@@ -96,6 +99,9 @@ func addCommand(command *cobra.Command, fn *starlark.Function) {
 				os.Setenv(name, val)
 				pos++
 			}
+
+			// add to task params for later usage as params in shell
+			support.TaskParams = args
 
 			out, err := starlark.Call(thread, fn, starlarkArgs(args), nil)
 			if err != nil {
@@ -114,7 +120,15 @@ func parseParams(fn *starlark.Function) (int, map[string]string) {
 	params := make(map[string]string)
 	minParams := fn.NumParams()
 
-	for i := 0; i < fn.NumParams(); i++ {
+	if fn.HasVarargs() {
+		minParams--
+	}
+	if fn.HasKwargs() {
+		minParams--
+	}
+
+	p := minParams
+	for i := 0; i < p; i++ {
 		param, _ := fn.Param(i)
 		defval := fn.ParamDefault(i)
 
@@ -129,18 +143,15 @@ func parseParams(fn *starlark.Function) (int, map[string]string) {
 	return minParams, params
 }
 
-func fmtUsage(fnName string, params map[string]string) string {
-	usage := fnName
-
+func fmtParams(s string, params map[string]string) string {
 	for name, defval := range params {
 		if defval == "" {
-			usage += fmt.Sprintf(" <%s>", name)
+			s += fmt.Sprintf(" <%s>", name)
 		} else {
-			usage += fmt.Sprintf(" [%s=%s]", name, defval)
+			s += fmt.Sprintf(" [%s=%s]", name, defval)
 		}
 	}
-
-	return usage
+	return s
 }
 
 func starlarkArgs(args []string) starlark.Tuple {

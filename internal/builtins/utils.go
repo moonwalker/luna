@@ -10,6 +10,8 @@ import (
 	"mvdan.cc/sh/v3/expand"
 	"mvdan.cc/sh/v3/interp"
 	shsyntax "mvdan.cc/sh/v3/syntax"
+
+	"github.com/moonwalker/luna/internal/support"
 )
 
 // https://github.com/mvdan/sh/blob/master/interp/example_test.go
@@ -21,7 +23,11 @@ func run(src string, env []string) error {
 		environ = append(environ, env...)
 	}
 
+	params := []string{"-e"}
+	params = append(params, support.TaskParams...)
+
 	r, err := interp.New(
+		interp.Params(params...),
 		interp.Env(expand.ListEnviron(environ...)),
 		interp.StdIO(os.Stdin, os.Stdout, os.Stderr),
 	)

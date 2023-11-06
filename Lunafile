@@ -23,6 +23,18 @@ def docs():
     sh('echo $VERSION @ $FOO', env=['FOO=BAR'])
     sh('go generate -v ./internal/api')
 
+# ex: luna new stack sandbox
+def new(kind, name):
+   if kind == 'stack':
+      sh('terramate create stack/$name')
+
+# ex:
+# luna stacks dev init -upgrade
+# luna stacks dev k8s apply --auto-approve
+# luna stacks dev output
+def stacks(stack, command, *args):
+    sh('echo $stack $command ${@:2}')
+
 def kube(stack='abc'):
     sh('echo $stack')
 
