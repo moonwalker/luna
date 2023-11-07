@@ -42,7 +42,7 @@ func go_service(thread *starlark.Thread, b *starlark.Builtin, args starlark.Tupl
 
 func serviceFromArgs(b *starlark.Builtin, args starlark.Tuple, kwargs []starlark.Tuple) (*support.Service, error) {
 	var name, dir, run, cmd, bin string
-	var dep []string
+	var dep starlark.Value
 	var watch bool
 
 	err := starlark.UnpackArgs(b.Name(), args, kwargs,
@@ -65,7 +65,7 @@ func serviceFromArgs(b *starlark.Builtin, args starlark.Tuple, kwargs []starlark
 		Run:   run,
 		Cmd:   cmd,
 		Bin:   bin,
-		Dep:   dep,
+		Dep:   stringArray(dep),
 		Watch: watch,
 	}
 

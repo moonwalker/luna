@@ -19,13 +19,13 @@ type Runner interface {
 type PM struct {
 	wg        sync.WaitGroup
 	cfg       *config.Config
-	runnables []*support.Service
+	Runnables []*support.Service
 }
 
 func NewPM(cfg *config.Config, allServices []*support.Service, serviceNames []string) *PM {
 	pm := &PM{
 		cfg:       cfg,
-		runnables: make([]*support.Service, 0),
+		Runnables: make([]*support.Service, 0),
 	}
 
 	// collect candidates with possible deps
@@ -36,17 +36,19 @@ func NewPM(cfg *config.Config, allServices []*support.Service, serviceNames []st
 				continue
 			}
 		}
-		// svc as candidate
-		candidates = append(candidates, svc)
+
 		// svc's dependencies as candidates
 		depSvcs := support.FindServices(svc.Dep...)
-		candidates = append(candidates, depSvcs...)
+		candidates = support.AppendIfNotExists(candidates, depSvcs...)
+
+		// svc as candidate
+		candidates = support.AppendIfNotExists(candidates, svc)
 	}
 
 	// load runnable candidates
 	for _, svc := range candidates {
 		if svc.Runnable() {
-			pm.runnables = append(pm.runnables, svc)
+			pm.Runnables = append(pm.Runnables, svc)
 		} else {
 			fmt.Printf("no command to execute for %s\n", svc.Name)
 		}
@@ -66,7 +68,7 @@ func (pm *PM) Run() {
 		cancel()
 	}()
 
-	for _, svc := range pm.runnables {
+	for _, svc := range pm.Runnables {
 		pm.wg.Add(1)
 		go pm.runService(ctx, svc)
 	}

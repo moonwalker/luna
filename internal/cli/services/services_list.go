@@ -1,6 +1,7 @@
 package services
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/olekukonko/tablewriter"
@@ -13,17 +14,21 @@ var svcListCmd = &cobra.Command{
 	Use:     "list",
 	Short:   "List services",
 	Aliases: []string{"ls"},
-
 	Run: func(cmd *cobra.Command, args []string) {
-		table := tablewriter.NewWriter(os.Stdout)
-		table.SetHeader([]string{"Name", "Directory"})
-		for _, svc := range support.ServicesSorted() {
-			table.Append([]string{svc.Name, svc.Dir})
-		}
-		table.Render()
+		servicesListTable(support.ServicesSorted())
 	},
 }
 
 func init() {
 	servicesCmd.AddCommand(svcListCmd)
+}
+
+func servicesListTable(svcList []*support.Service) {
+	table := tablewriter.NewWriter(os.Stdout)
+	table.SetHeader(append([]string{"#"}, support.ServicesKeys()...))
+	for i, svc := range svcList {
+		n := fmt.Sprintf("%d", i+1)
+		table.Append(append([]string{n}, svc.Fields()...))
+	}
+	table.Render()
 }

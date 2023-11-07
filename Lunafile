@@ -12,7 +12,7 @@ env('VERSION', '0.1.0')
 service('svc_a_2', 'examples/service_a', run='go run .')
 service('svc_b_2', 'examples/service_b', run='go run .')
 
-go_service('svc_a_3', 'examples/service_a')
+go_service('svc_a_3', 'examples/service_a', dep=['svc_a_2'], watch=True)
 go_service('svc_b_3', 'examples/service_b')
 
 # tasks

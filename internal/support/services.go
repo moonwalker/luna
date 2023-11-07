@@ -50,6 +50,43 @@ func ServicesSorted() []*Service {
 	return res
 }
 
+// register a service from lunafile
+func RegisterService(s *Service) error {
+	if s == nil || len(s.Name) == 0 {
+		return invalidServiceError
+	}
+	services = append(services, s)
+	return nil
+}
+
+func FindServices(names ...string) []*Service {
+	res := make([]*Service, 0)
+	for _, n := range names {
+		for _, s := range services {
+			if s.Name == n {
+				res = append(res, s)
+			}
+		}
+	}
+	return res
+}
+
+func AppendIfNotExists(sl []*Service, n ...*Service) []*Service {
+	cache := make(map[*Service]*Service)
+
+	for _, elem := range sl {
+		cache[elem] = elem
+	}
+
+	for _, elem := range n {
+		if _, ok := cache[elem]; !ok {
+			sl = append(sl, elem)
+		}
+	}
+
+	return sl
+}
+
 // load services from yaml
 func LoadYaml(f string) error {
 	in, err := os.ReadFile(f)
@@ -73,25 +110,4 @@ func LoadYaml(f string) error {
 	}
 
 	return nil
-}
-
-// register a service from lunafile
-func RegisterService(s *Service) error {
-	if s == nil || len(s.Name) == 0 {
-		return invalidServiceError
-	}
-	services = append(services, s)
-	return nil
-}
-
-func FindServices(names ...string) []*Service {
-	res := make([]*Service, 0)
-	for _, n := range names {
-		for _, s := range services {
-			if s.Name == n {
-				res = append(res, s)
-			}
-		}
-	}
-	return res
 }
