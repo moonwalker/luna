@@ -18,13 +18,6 @@ const (
 	groupTitle = "Tasks:"
 )
 
-var (
-	thread = &starlark.Thread{
-		Name:  "main",
-		Print: func(_ *starlark.Thread, msg string) { fmt.Println(msg) },
-	}
-)
-
 type fnParam struct {
 	name  string
 	value string
@@ -73,7 +66,7 @@ func execFile(name string) (starlark.StringDict, error) {
 		return nil, err
 	}
 
-	globals, err := starlark.ExecFile(thread, name, string(data), builtins.Predeclared)
+	globals, err := starlark.ExecFile(builtins.Thread, name, string(data), builtins.Predeclared)
 	if err != nil {
 		if evalErr, ok := err.(*starlark.EvalError); ok {
 			return nil, errors.New(evalErr.Backtrace())
@@ -101,7 +94,7 @@ func addCommand(command *cobra.Command, fn *starlark.Function) {
 			paramsWithArgsToEnv(params, args)
 
 			// call the function
-			out, err := starlark.Call(thread, fn, starlarkArgs(args), nil)
+			out, err := starlark.Call(builtins.Thread, fn, starlarkArgs(args), nil)
 			if err != nil {
 				fmt.Fprintln(os.Stderr, err)
 			}

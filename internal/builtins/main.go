@@ -1,8 +1,12 @@
 package builtins
 
 import (
+	"fmt"
+	"os"
+
 	"github.com/spf13/cobra"
 	"go.starlark.net/starlark"
+	"go.starlark.net/starlarkstruct"
 )
 
 type BuiltinsConfig struct {
@@ -12,7 +16,14 @@ type BuiltinsConfig struct {
 }
 
 var (
-	Config      = &BuiltinsConfig{}
+	Config = &BuiltinsConfig{}
+
+	Thread = &starlark.Thread{
+		Name:  "main",
+		Print: print,
+		Load:  load,
+	}
+
 	Predeclared = starlark.StringDict{
 		"env":         starlark.NewBuiltin("env", env),
 		"sh":          starlark.NewBuiltin("sh", sh),
@@ -28,4 +39,23 @@ func ConfigTasks(command *cobra.Command, tasksGroupID string, tasksGroupTitle st
 	Config.RootCommand = command
 	Config.TasksGroupID = tasksGroupID
 	Config.TasksGroupTitle = tasksGroupTitle
+}
+
+func print(_ *starlark.Thread, msg string) {
+	fmt.Println(msg)
+}
+
+func load(thread *starlark.Thread, module string) (starlark.StringDict, error) {
+	if starlark.Universe.Has(module) {
+		return starlark.StringDict{module: starlark.Universe[module]}, nil
+	}
+
+	data, err := os.ReadFile(module)
+	if err != nil {
+		return nil, err
+	}
+
+	return starlark.ExecFile(thread, module, data, starlark.StringDict{
+		"module": starlark.NewBuiltin("module", starlarkstruct.MakeModule),
+	})
 }
