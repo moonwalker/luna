@@ -6,13 +6,14 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"sync"
 
 	"github.com/1password/onepassword-sdk-go"
 	"github.com/joho/godotenv"
 )
 
 var (
-	optoken  string
+	once     sync.Once
 	opclient *onepassword.Client
 )
 
@@ -22,11 +23,9 @@ func init() {
 
 func Environ(dir string, env ...string) []string {
 	loadEnvFiles(dir)
-	initop()
 
 	environ := append(os.Environ(), env...)
 	for i, e := range environ {
-		// println(e)
 		pair := strings.SplitN(e, "=", 2)
 		environ[i] = pair[0] + "=" + op(pair[1])
 	}
@@ -50,24 +49,14 @@ func loadEnvFiles(dir string) {
 	godotenv.Overload(usrenv)
 }
 
-func initop() {
-	opEnabled, _ := strconv.ParseBool(os.Getenv("OP_ENABLED"))
-	if opEnabled && opclient == nil {
-		var err error
-		opclient, err = onepassword.NewClient(
-			context.Background(),
-			onepassword.WithServiceAccountToken(os.Getenv("OP_SERVICE_ACCOUNT_TOKEN")),
-			onepassword.WithIntegrationInfo("luna op integration", "v0.1.0"),
-		)
-		if err != nil {
-			fmt.Fprintln(os.Stderr, err)
-		}
-	}
-}
-
 func op(ref string) string {
-	if opclient == nil || !strings.HasPrefix(ref, "op://") {
+	opEnabled, _ := strconv.ParseBool(os.Getenv("OP_ENABLED"))
+	if !opEnabled || !strings.HasPrefix(ref, "op://") {
 		return ref
+	}
+
+	if opclient == nil {
+		once.Do(initop)
 	}
 
 	item, err := opclient.Secrets.Resolve(context.Background(), ref)
@@ -76,4 +65,16 @@ func op(ref string) string {
 	}
 
 	return item
+}
+
+func initop() {
+	var err error
+	opclient, err = onepassword.NewClient(
+		context.Background(),
+		onepassword.WithServiceAccountToken(os.Getenv("OP_SERVICE_ACCOUNT_TOKEN")),
+		onepassword.WithIntegrationInfo("luna op integration", "v0.1.0"),
+	)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+	}
 }
