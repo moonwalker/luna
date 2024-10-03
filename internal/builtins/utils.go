@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"strconv"
 	"strings"
 
 	"go.starlark.net/starlark"
@@ -17,11 +18,7 @@ import (
 // https://github.com/mvdan/sh/blob/master/interp/example_test.go
 // https://github.com/go-task/task/blob/main/internal/execext/exec.go#L35
 func run(src string, env []string) error {
-	environ := os.Environ()
-
-	if env != nil {
-		environ = append(environ, env...)
-	}
+	environ := support.Environ(env...)
 
 	params := []string{"-e"}
 	params = append(params, support.TaskParams...)
@@ -59,6 +56,23 @@ func stringArray(in starlark.Value) (res []string) {
 				res = append(res, string(s))
 			}
 		}
+	default:
+		fmt.Printf("unknown type %T\n", v)
+	}
+	return
+}
+
+func stringAndBool(in starlark.Value) (res string) {
+	if in == nil {
+		return
+	}
+	switch v := in.(type) {
+	case starlark.String:
+		s := in.(starlark.String)
+		res = string(s)
+	case starlark.Bool:
+		b := in.(starlark.Bool)
+		res = strconv.FormatBool(bool(b))
 	default:
 		fmt.Printf("unknown type %T\n", v)
 	}

@@ -3,20 +3,12 @@ package builtins
 import (
 	"os"
 
-	"github.com/joho/godotenv"
 	"go.starlark.net/starlark"
 )
 
-func init() {
-	// .env (default)
-	godotenv.Load()
-
-	// .env.local # local user specific (usually git ignored)
-	godotenv.Overload(".env.local")
-}
-
 func env(thread *starlark.Thread, b *starlark.Builtin, args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
-	var key, val string
+	var key string
+	var val starlark.Value
 	err := starlark.UnpackArgs(b.Name(), args, kwargs,
 		"key", &key,
 		"val", &val,
@@ -27,7 +19,7 @@ func env(thread *starlark.Thread, b *starlark.Builtin, args starlark.Tuple, kwar
 
 	_, exists := os.LookupEnv(key)
 	if !exists {
-		err = os.Setenv(key, val)
+		err = os.Setenv(key, stringAndBool(val))
 		if err != nil {
 			return nil, err
 		}

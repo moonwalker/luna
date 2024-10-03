@@ -10,7 +10,10 @@ http.get(u)
 # common
 
 # define default for an env var, provided env var will override
-env('VERSION', '0.1.0')
+env("VERSION", "0.1.0")
+
+env("OP_ENABLED", True)
+env("OP_TEST", "op://foo/bar/baz")
 
 # ldflags('-X github.com/moonwalker/platform/internal/build.version=$VERSION')
 # docker_repo('europe-docker.pkg.dev/mw-lunar/platform')
@@ -18,23 +21,22 @@ env('VERSION', '0.1.0')
 
 # services
 
-service('svc_a_2', 'examples/service_a', run='go run .')
-service('svc_b_2', 'examples/service_b', run='go run .')
+service("svc_a_2", "examples/service_a", run="go run .")
+service("svc_b_2", "examples/service_b", run="go run .")
 
-go_service('svc_a_3', 'examples/service_a', dep=['svc_a_2'], watch=True)
-go_service('svc_b_3', 'examples/service_b')
+go_service("svc_a_3", "examples/service_a", dep=["svc_a_2"], watch=True)
+go_service("svc_b_3", "examples/service_b")
 
 # tasks
 
-task('docs2', cmds=['echo "gello"', 'echo "bboo"'])
+task("docs2", cmds=['echo "gello"', 'echo "bboo"'])
 
 
 def docs():
-    sh('echo $VERSION @ $FOO', env=['FOO=BAR'])
-    sh('go generate -v ./internal/api')
+    sh("echo $VERSION @ $FOO, $OP_TEST", env=["FOO=BAR"])
 
 
 def stacks(stack, command, *args):
     print(stack, command)
-    sh('echo $stack $command')
-    sh('echo $1 $2')
+    sh("echo $stack $command")
+    sh("echo $1 $2")

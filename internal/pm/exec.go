@@ -71,7 +71,7 @@ func makeCmd(command string, dir string) *exec.Cmd {
 	args := parts[1:]
 
 	cmd := exec.Command(name, args...)
-	cmd.Env = os.Environ()
+	cmd.Env = support.Environ()
 	if dir != "" {
 		cmd.Dir = dir
 	}
