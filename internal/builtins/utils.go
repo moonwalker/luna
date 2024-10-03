@@ -18,7 +18,7 @@ import (
 // https://github.com/mvdan/sh/blob/master/interp/example_test.go
 // https://github.com/go-task/task/blob/main/internal/execext/exec.go#L35
 func run(src string, env []string) error {
-	environ := support.Environ(env...)
+	environ := support.Environ("", env...)
 
 	params := []string{"-e"}
 	params = append(params, support.TaskParams...)

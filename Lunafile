@@ -10,10 +10,7 @@ http.get(u)
 # common
 
 # define default for an env var, provided env var will override
-env("VERSION", "0.1.0")
-
-env("OP_ENABLED", True)
-env("OP_TEST", "op://foo/bar/baz")
+env("OP_ENABLED", False)
 
 # ldflags('-X github.com/moonwalker/platform/internal/build.version=$VERSION')
 # docker_repo('europe-docker.pkg.dev/mw-lunar/platform')
