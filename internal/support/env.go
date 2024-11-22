@@ -39,13 +39,20 @@ func Environ(dir string, env ...string) []string {
 func dotenvFiles(dir string) (res []string) {
 	filenames := []string{dir + "/" + defenv, dir + "/" + usrenv}
 
-	envMap, err := godotenv.Read(filenames...)
-	if err != nil {
-		return
-	}
+	for _, filename := range filenames {
+		src, err := os.ReadFile(filename)
+		if err != nil {
+			return
+		}
 
-	for k, v := range envMap {
-		res = append(res, k+"="+v)
+		envMap, err := godotenv.UnmarshalBytes(src)
+		if err != nil {
+			return
+		}
+
+		for k, v := range envMap {
+			res = append(res, k+"="+v)
+		}
 	}
 
 	return
