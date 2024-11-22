@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"slices"
 	"strconv"
 	"strings"
 	"sync"
@@ -13,40 +14,41 @@ import (
 )
 
 var (
+	defenv   = ".env"
+	usrenv   = ".env.local"
 	once     sync.Once
 	opclient *onepassword.Client
 )
 
+// load global .env files
 func init() {
-	loadEnvFiles("")
-}
-
-func Environ(dir string, env ...string) []string {
-	loadEnvFiles(dir)
-
-	environ := append(os.Environ(), env...)
-	for i, e := range environ {
-		pair := strings.SplitN(e, "=", 2)
-		environ[i] = pair[0] + "=" + op(pair[1])
-	}
-
-	return environ
-}
-
-func loadEnvFiles(dir string) {
-	defenv := ".env"
-	usrenv := ".env.local"
-
-	if dir != "" {
-		defenv = dir + "/" + defenv
-		usrenv = dir + "/" + usrenv
-	}
-
 	// .env (default)
 	godotenv.Load(defenv)
 
 	// .env.local # local user specific (usually git ignored)
 	godotenv.Overload(usrenv)
+}
+
+func Environ(dir string, env ...string) []string {
+	osenv := os.Environ()
+	dotenv := dotenvFiles(dir)
+
+	return slices.Concat(osenv, dotenv, env)
+}
+
+func dotenvFiles(dir string) (res []string) {
+	filenames := []string{dir + "/" + defenv, dir + "/" + usrenv}
+
+	envMap, err := godotenv.Read(filenames...)
+	if err != nil {
+		return
+	}
+
+	for k, v := range envMap {
+		res = append(res, k+"="+v)
+	}
+
+	return
 }
 
 func op(ref string) string {

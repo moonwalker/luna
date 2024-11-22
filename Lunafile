@@ -10,7 +10,7 @@ http.get(u)
 # common
 
 # define default for an env var, provided env var will override
-env("OP_ENABLED", False)
+env("OP_ENABLED", True)
 
 # ldflags('-X github.com/moonwalker/platform/internal/build.version=$VERSION')
 # docker_repo('europe-docker.pkg.dev/mw-lunar/platform')
@@ -30,7 +30,7 @@ task("docs2", cmds=['echo "gello"', 'echo "bboo"'])
 
 
 def docs():
-    sh("echo $VERSION @ $FOO, $OP_TEST", env=["FOO=BAR"])
+    sh("echo $VERSION @ $FOO, $OP_ENABLED", env=["FOO=BAR3"])
 
 
 def stacks(stack, command, *args):
