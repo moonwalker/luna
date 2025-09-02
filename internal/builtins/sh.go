@@ -5,10 +5,11 @@ import (
 )
 
 func sh(thread *starlark.Thread, b *starlark.Builtin, args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
-	var cmd string
+	var cmd, dir string
 	var senv starlark.Value
 	err := starlark.UnpackArgs(b.Name(), args, kwargs,
 		"cmd", &cmd,
+		"dir?", &dir,
 		"env?", &senv,
 	)
 	if err != nil {
@@ -16,7 +17,7 @@ func sh(thread *starlark.Thread, b *starlark.Builtin, args starlark.Tuple, kwarg
 	}
 
 	env := stringArray(senv)
-	err = run(cmd, env)
+	err = run(cmd, dir, env)
 	if err != nil {
 		return nil, err
 	}

@@ -10,11 +10,12 @@ import (
 )
 
 func task(thread *starlark.Thread, b *starlark.Builtin, args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
-	var name string
+	var name, dir string
 	var cmds, senv starlark.Value
 	err := starlark.UnpackArgs(b.Name(), args, kwargs,
 		"name", &name,
 		"cmds?", &cmds,
+		"dir?", &dir,
 		"env?", &senv,
 	)
 	if err != nil {
@@ -31,7 +32,7 @@ func task(thread *starlark.Thread, b *starlark.Builtin, args starlark.Tuple, kwa
 		Run: func(c *cobra.Command, a []string) {
 			src := strings.Join(stringArray(cmds), "\n")
 			env := stringArray(senv)
-			err = run(src, env)
+			err = run(src, dir, env)
 			if err != nil {
 				fmt.Fprintln(os.Stderr, err)
 			}

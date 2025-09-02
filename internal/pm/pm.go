@@ -74,10 +74,8 @@ func (pm *PM) Run() {
 	}
 
 	go func() {
-		select {
-		case <-sigs: // first signal, cancel context
-			cancel()
-		}
+		<-sigs // first signal, cancel context
+		cancel()
 		<-sigs // second signal, hard exit
 		os.Exit(2)
 	}()

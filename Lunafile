@@ -28,6 +28,7 @@ go_service("svc_b_3", "examples/service_b")
 
 task("docs2", cmds=['echo "gello"', 'echo "bboo"'])
 
+task("dir", dir='examples/service_b', cmds=['pwd'])
 
 def docs():
     sh("echo $VERSION @ $FOO, $OP_ENABLED", env=["FOO=BAR3"])
