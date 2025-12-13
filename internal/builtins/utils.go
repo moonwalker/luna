@@ -20,7 +20,7 @@ import (
 func run(src string, dir string, env []string) error {
 	environ := support.Environ("", env...)
 
-	params := []string{"-e"}
+	params := []string{"-e", "--"}
 	params = append(params, support.TaskParams...)
 
 	r, err := interp.New(

@@ -33,7 +33,6 @@ task("dir", dir='examples/service_b', cmds=['pwd'])
 def docs():
     sh("echo $VERSION @ $FOO, $OP_ENABLED", env=["FOO=BAR3"])
 
-
 def stacks(stack, command, *args):
     print(stack, command)
     sh("echo $stack $command")
